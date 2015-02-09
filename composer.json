@@ -1,0 +1,24 @@
+{
+    "name": "blimp/blimp-config",
+    "type": "library",
+    "description": "Blimp framework",
+    "license": "LGPL-3.0+",
+    "authors": [
+        {
+            "name": "Nelson Antunes",
+            "email": "nelson.antunes@gmail.com",
+            "homepage": "http://nantunes.net",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "pimple/pimple": "~3.0",
+        "symfony/config": "2.5.*",
+        "symfony/yaml": "2.5.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Blimp\\Config\\": "src"
+        }
+    }
+}

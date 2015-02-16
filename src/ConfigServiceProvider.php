@@ -12,24 +12,6 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Resource\FileResource;
 
 class ConfigServiceProvider implements ServiceProviderInterface {
-    private function get_config($config, $api) {
-        $cachePath = $api['config.cache'] . '/' . $api['config.file'] . '.php';
-
-        $cache = new ConfigCache($cachePath, true);
-
-        if (!$cache->isFresh()) {
-            $config = $api['config.cache.prepare'];
-
-            $code = "<?php return " . var_export($config, true) . ";";
-
-            $cache->write($code, [new FileResource($api['config.file.path'])]);
-        } else {
-            $config = include $cachePath;
-        }
-
-        return $config;
-    }
-
     public function register(Container $api) {
         $api['config.dir'] = __DIR__;
         $api['config.cache'] = function ($api) {
@@ -75,11 +57,29 @@ class ConfigServiceProvider implements ServiceProviderInterface {
             return $config;
         };
 
+        $get_config = function($config, $api) {
+            $cachePath = $api['config.cache'] . '/' . $api['config.file'] . '.php';
+
+            $cache = new ConfigCache($cachePath, true);
+
+            if (!$cache->isFresh()) {
+                $config = $api['config.cache.prepare'];
+
+                $code = "<?php return " . var_export($config, true) . ";";
+
+                $cache->write($code, [new FileResource($api['config.file.path'])]);
+            } else {
+                $config = include $cachePath;
+            }
+
+            return $config;
+        };
+
         if ($api->offsetExists('config')) {
-            $api->extend('config', this->get_config);
+            $api->extend('config', $get_config);
         } else {
             $this['config'] = function ($api) {
-                return this->get_config([], $api);
+                return $get_config([], $api);
             };
         }
     }
